@@ -1,8 +1,6 @@
 import { FastifyPluginAsync } from "fastify";
 import { businesmens } from "../mongoDB/model";
-import { bussinesMenSingUpRouter, bussinesMenLogInRouter } from "./bussinesmen/auth";
-import { serviceRouter } from "./bussinesmen/service";
-import { settings } from "./bussinesmen/settings";
+import { bussinesMenSingUpRouter, bussinesMenLogInRouter, serviceRouter, settingsRouter } from "./bussinesmen";
 
 // Main router for business-related endpoints
 const bussinesmenRouter: FastifyPluginAsync = async (fastify , opt) => {
@@ -45,7 +43,7 @@ const bussinesmenRouter: FastifyPluginAsync = async (fastify , opt) => {
     instance.register(serviceRouter, { prefix: "/service" });
 
     // Register settings routes under the /settings prefix
-    instance.register(settings , { prefix: "/Settings"})
+    instance.register(settingsRouter , { prefix: "/Settings"})
   });
 };
 

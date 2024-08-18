@@ -1,1 +1,1 @@
-export { default as settings } from "./settings"
+export { default as settingsRouter } from "./settings"
