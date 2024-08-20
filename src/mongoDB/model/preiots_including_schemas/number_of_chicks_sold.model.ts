@@ -1,6 +1,7 @@
 import { model, Schema } from "mongoose";
 
 const number_of_chicks_sold_schema =new Schema({
+  periot: { type: Schema.Types.ObjectId , ref: "periots"},
   autor: { type: Schema.Types.ObjectId , ref: "workers"},
   description: { type: String , default: undefined },
   count: { type: Number , default: 0 },

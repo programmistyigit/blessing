@@ -7,6 +7,7 @@ import _ from "lodash";
 type Body = { token: string }
 type ValidateTokenReturnData = {
   data: { _id: string },
+  token: { _idT: string }
 }
 
 const workerLoginRouter: FastifyPluginAsync = async (fastify) => {
@@ -28,13 +29,13 @@ const workerLoginRouter: FastifyPluginAsync = async (fastify) => {
     await getWorker.populate({ path: "worker_id", strictPopulate: true })
     if(!getWorker.worker_id) throw new Error("invalid document")
 
-    return { data: { _id: getWorker.worker_id.toString() } }
+    return { data: { _id: getWorker.worker_id.toString() }, token: { _idT: deToken._id} }
   }
 
   fastify.post("/login", { schema }, async (request, reply) => {
     try {
       const { token } = request.body as Body
-      const { data:{ _id } } = await validateToken(token)
+      const { data:{ _id }, token: {_idT} } = await validateToken(token)
       
       const isValidId = mongoose.Types.ObjectId.isValid(_id)
       if(!isValidId) throw new Error("invalid worker ID");
@@ -42,6 +43,7 @@ const workerLoginRouter: FastifyPluginAsync = async (fastify) => {
       const workerData = await worker.findById(_id)
       if(!workerData) throw new Error ("worker not found");
       const workerAuthToken = fastify.jwt.sign(_.pick(workerData , ["_id"]))
+      await tokenOfAuthorization.findByIdAndDelete(_idT)
       return reply
         .code(200)
         .send(
