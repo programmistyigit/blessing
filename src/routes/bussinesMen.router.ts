@@ -1,18 +1,40 @@
 import { FastifyPluginAsync } from "fastify";
-import { businesmens } from "../mongoDB/model";
+import { businesmens, business_spaces } from "../mongoDB/model";
 import { bussinesMenSingUpRouter, bussinesMenLogInRouter, serviceRouter, settingsRouter } from "./bussinesmen";
+import workerTypes_model from "../mongoDB/model/workerTypes/workerTypes.model";
 
 // Main router for business-related endpoints
-const bussinesmenRouter: FastifyPluginAsync = async (fastify , opt) => {
+const bussinesmenRouter: FastifyPluginAsync = async (fastify, opt) => {
   // Register authentication routes under the /auth prefix
   void fastify.register(bussinesMenSingUpRouter, { prefix: "/auth" });
   void fastify.register(bussinesMenLogInRouter, { prefix: "/auth" });
 
   // Endpoint to check if there are registered business owners
-  void fastify.get("/businessOwnerVerification", async (_, reply) => {
-    const hasBusinessOwners = (await businesmens.countDocuments()) > 0;
-    return reply.send({ hasBusinessOwners });
+  void fastify.get("/verified-businesmen-with-token", async (request, reply) => {
+    try {
+      const spaceAll = await business_spaces.find()
+      console.log(spaceAll);
+      
+      const { token } = request.query as { token: string }
+      if (!token) return reply.badRequest("no token data");
+      const cheskToken = fastify.jwt.verify<{ _id: string }>(token)
+      const exitingBusinessmen = await businesmens.findById(cheskToken._id).select("-login -password")
+      if (!exitingBusinessmen) reply.badRequest("User not found");
+      const allWorkerType = await workerTypes_model.find({})
+      await Promise.all(allWorkerType.map(e => e.populate({ path: "members" , strictPopulate: true})))
+      
+      await exitingBusinessmen?.populate({ path: "business_space" , strictPopulate: true })
+      await exitingBusinessmen?.populate({ path: "all_workers" , strictPopulate: true, populate: { path: "worker_type" , strictPopulate: true, select: "-members"} })
+      await exitingBusinessmen?.populate({ path: "periots" , strictPopulate: true , populate: { path: "exponens" , strictPopulate: true}})
+      await exitingBusinessmen?.populate({ path: "current_periot" , strictPopulate: true , populate: { path: "exponens" , strictPopulate: true}})
+
+      return { status: "success", ok: true, result: { data: exitingBusinessmen , athersModel: { allWorkerType } } }
+    } catch (error: any) {
+      return reply.internalServerError(error + "")
+    }
   });
+
+
 
   // Register authentication middleware and service routes
   fastify.register(async (instance) => {
@@ -20,7 +42,7 @@ const bussinesmenRouter: FastifyPluginAsync = async (fastify , opt) => {
     instance.addHook('preHandler', async (request, reply) => {
       const authorizationHeader = request.headers['authorization'];
       if (!authorizationHeader) {
-        throw new Error('Unauthorized');
+        return reply.code(401).send({ status: "error" , ok: false , message: "Unauthorized"})
       }
 
       const token = authorizationHeader.split(' ')[1];
@@ -33,7 +55,7 @@ const bussinesmenRouter: FastifyPluginAsync = async (fastify , opt) => {
         }
 
         request.user = user._id.toString();
-      } catch (err:any) {
+      } catch (err: any) {
         console.error(err);
         return reply.status(401).send({ message: err.message });
       }
@@ -43,7 +65,7 @@ const bussinesmenRouter: FastifyPluginAsync = async (fastify , opt) => {
     instance.register(serviceRouter, { prefix: "/service" });
 
     // Register settings routes under the /settings prefix
-    instance.register(settingsRouter , { prefix: "/Settings"})
+    instance.register(settingsRouter, { prefix: "/Settings" })
   });
 };
 

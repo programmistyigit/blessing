@@ -1,6 +1,7 @@
 import { Type } from "@sinclair/typebox";
 import { FastifyPluginAsync, FastifySchema } from "fastify";
-import { permission, worker_types } from "../../../../mongoDB/model";
+import { worker_types } from "../../../../mongoDB/model";
+import { permission_list } from "../../../../constants";
 
 // Type definitions for request bodies and query strings
 type CreateWorkerTypeBody = {
@@ -33,7 +34,7 @@ const workerTypeRouter: FastifyPluginAsync = async (fastify) => {
     body: Type.Object({
       career: Type.String({ minLength: 4, maxLength: 20 }),
       salary: Type.Number({ minimum: 0 }),
-      salary_type: Type.String({ pattern: `/USD|UZS/` }),
+      salary_type: Type.String({}),
       permissions: Type.Array(Type.String()), // No pattern needed, validation handled elsewhere
     }),
   };
@@ -42,7 +43,7 @@ const workerTypeRouter: FastifyPluginAsync = async (fastify) => {
     body: Type.Object({
       career: Type.Optional(Type.String({ minLength: 4, maxLength: 20 })),
       salary: Type.Optional(Type.Number({ minimum: 0 })),
-      salary_type: Type.Optional(Type.String({ pattern: `/USD|UZS/` })),
+      salary_type: Type.Optional(Type.String({  })),
       permissions: Type.Optional(Type.Array(Type.String())), // No pattern needed, validation handled elsewhere
     }), // Reuse schema for edit with partial properties
     querystring: Type.Object({
@@ -62,7 +63,7 @@ const workerTypeRouter: FastifyPluginAsync = async (fastify) => {
       const { career, permissions } = request.body as CreateWorkerTypeBody;
 
       // Validate permission IDs exist
-      const existingPermissions = await permission.find({ _id: { $in: permissions } });
+      const existingPermissions = permission_list.filter(e => permissions.includes(e.permission));
       if (existingPermissions.length !== permissions.length) {
         throw new Error("Invalid permission data");
       }
@@ -136,6 +137,15 @@ const workerTypeRouter: FastifyPluginAsync = async (fastify) => {
       return reply.internalServerError("Internal server error");
     }
   });
+
+  fastify.get("/all-type" , async (request, reply) => {
+    try {
+      const result = await worker_types.find({}).lean()
+      return { status: "success" , ok: true , result }
+    } catch (error:any) {
+      return reply.code(500).send({ status: "error" , ok:false , error: error+""})
+    }
+  })
 };
 
 export default workerTypeRouter;

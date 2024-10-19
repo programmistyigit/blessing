@@ -4,7 +4,7 @@ const workerTypes_schema = new Schema({
   career: { type: String, required: true , unique: true}, // mansab
   salary: { type: Number, required: true }, // oylik
   salary_type: { type: String , required: true , enum: ["USD" , "UZS"]},
-  permissions: [{ type: Schema.Types.ObjectId , ref: "permissions"}], // rxsatlar
+  permissions: [{ type: String }], // rxsatlar
   members: [{ type: Schema.Types.ObjectId , ref: "workers"}] // shu turkumdagi ishchilar
 })
 

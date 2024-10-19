@@ -32,7 +32,7 @@ const spaceRouter: FastifyPluginAsync = async (fastify) => {
   const schemaCreate: FastifySchema = {
     body: Type.Object({
       description: Type.Optional(Type.String({ maxLength: 200 })),
-      name: Type.Required(Type.String({ maxLength: 20 })),
+      name: Type.String({ maxLength: 20 }),
     }),
   };
 
@@ -61,6 +61,7 @@ const spaceRouter: FastifyPluginAsync = async (fastify) => {
       await validateUniqueName(name); // Validate name uniqueness
 
       const newSpace = await business_spaces.create(request.body);
+      await businesmens.findByIdAndUpdate(request.user , { $push: { business_space: newSpace._id}})
 
       return reply.code(201).send({ // Created (201) status code
         status: "success",

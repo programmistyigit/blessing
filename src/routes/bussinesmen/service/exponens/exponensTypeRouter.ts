@@ -2,6 +2,7 @@ import { Type } from "@sinclair/typebox";
 import { FastifyPluginAsync, FastifySchema } from "fastify";
 import { exponens, exponensTypes } from "../../../../mongoDB/model";
 import bson_regExp from "../../../../constants/bson_regExp";
+import exponensTypes_model from "../../../../mongoDB/model/exponensTypes.model";
 
 // Define type interfaces for request bodies and queries
 type CreateBody = {
@@ -38,7 +39,7 @@ const exponensTypeRouter: FastifyPluginAsync = async (fastify) => {
       description: Type.Optional(Type.String({ maxLength: 100 })),
     }),
     querystring: Type.Object({
-      _id: Type.String({ pattern: `${bson_regExp}` }),
+      _id: Type.String({ }),
     }),
   };
 
@@ -141,6 +142,17 @@ const exponensTypeRouter: FastifyPluginAsync = async (fastify) => {
       return reply.internalServerError("Internal server error"); // Generic error for unexpected issues
     }
   });
+
+  fastify.get("/all-type" , async (request, reply) => {
+    try {
+      const allTypes = await exponensTypes_model.find()
+      console.log(allTypes);
+      
+      return { status: "success" , ok:true , result: allTypes}
+    } catch (error:any) {
+      return reply.code(500).send({ status: "error" , ok:false , error: error+""})
+    }
+  })
 };
 
 export default exponensTypeRouter;

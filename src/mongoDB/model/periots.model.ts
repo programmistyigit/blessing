@@ -13,6 +13,7 @@ const periots_schema = new Schema({
       }
     }
   ], //javobgar ishchi 
+  exponens: [{ type: Schema.Types.ObjectId, ref: "exponens" }],
   status: { type: String, enum: ["continues", "finished", "is expected"] },
   periot_name: { type: String, default: "exomple periot" },
   periot_createData: { type: Date, required: true },

@@ -1,7 +1,8 @@
 import { Type } from "@sinclair/typebox";
 import { FastifyPluginAsync, FastifySchema } from "fastify";
 import bson_regExp from "../../../../constants/bson_regExp";
-import { exponens, exponensTypes } from "../../../../mongoDB/model";
+import { businesmens, exponens, exponensTypes, periots } from "../../../../mongoDB/model";
+import mongoose from "mongoose";
 
 // **Type definitions for request bodies (clear and concise)**
 type CreateBody = {
@@ -20,6 +21,8 @@ const exponensRouter: FastifyPluginAsync = async (fastify) => {
 
   // **Function to check if exponens type exists (error handling)**
   const checkExponensType = async (_id:any) => {
+    const validateID = mongoose.Types.ObjectId.isValid(_id)
+    if(!validateID) throw new Error("Invalid Id data")
     const check = await exponensTypes.findById(_id);
     if (!check) throw new Error("Exponens type not found");
   };
@@ -28,7 +31,7 @@ const exponensRouter: FastifyPluginAsync = async (fastify) => {
   const schemaCreate: FastifySchema = {
     body: Type.Object({
       description: Type.Optional(Type.String({ maxLength: 100 })),
-      exponens_types: Type.String({ pattern: `${bson_regExp}` }),
+      exponens_types: Type.String(),
       exponens_value: Type.Object({
         usd: Type.Number({ default: 0, minimum: 0 }),
         uzs: Type.Number({ default: 0, minimum: 0 }),
@@ -53,8 +56,13 @@ const exponensRouter: FastifyPluginAsync = async (fastify) => {
       const { exponens_types } = request.body as CreateBody;
       await checkExponensType(exponens_types);
 
+      const businesmen = await businesmens.findById(request.user)
+      const currentPeriots = businesmen?.current_periot?._id
+      if(!currentPeriots) throw new Error("Davr boshlanmaguncha harajat qoshilmaydi");
       // **2. Create new exponens document**
       const newExponens = await exponens.create(request.body);
+    const periot = await periots.findByIdAndUpdate(currentPeriots , { $push: { exponens: newExponens._id}})
+    if(!periot) throw new Error("Davr topilmadi nimadur hato")
 
       return reply
         .code(201) // Created status code
@@ -63,6 +71,7 @@ const exponensRouter: FastifyPluginAsync = async (fastify) => {
           ok: true,
           result: {
             data: newExponens,
+            periot
           },
         });
     } catch (error:any) {

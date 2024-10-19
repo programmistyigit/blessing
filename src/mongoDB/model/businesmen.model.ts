@@ -1,7 +1,7 @@
 import { model, Schema } from "mongoose";
 
 const businessmenSchema = new Schema({
-  business_name: {type: String , default: "exomple name"},
+  business_name: {type: String , default: "Blessing"},
   login: { type: String, unique: true , required: true },
   password: { type:String , required: true },
   business_space: [{ type: Schema.Types.ObjectId , ref: "business_spaces" }], //biznes tochkalar 
@@ -10,10 +10,11 @@ const businessmenSchema = new Schema({
     deposite_Sum: { type: Number , default: 0 , min: 0},
     deposite_Usd: { type: Number , default: 0 , min: 0}
   },
-  othersExponens:[{ type: Schema.Types.ObjectId , ref: "exponens"}], // boshqa harajatlar
-  salary_expenses: [{ type: Schema.Types.ObjectId , ref: "exponens"}], // oylik harajatlari
   periots: [{ type: Schema.Types.ObjectId , ref: "periots" }],
   current_periot: { type: Schema.Types.ObjectId , ref: "periots" },
+  task: [{ type: Schema.Types.ObjectId, ref: "tasks"}],
+  valueOfChichk: { type: Number, default: 0 },
+  
 })
 
 

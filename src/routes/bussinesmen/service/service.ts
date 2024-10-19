@@ -1,9 +1,10 @@
 import { FastifyPluginAsync } from "fastify";
 import { depositeRouter } from "./deposite";
 import { periotsRouter } from "./periots";
-import { workerRouter, workerTypeRouter } from "./workers";
+import { createUniqueKey, workerRouter, workerTypeRouter } from "./workers";
 import { spaceRouter } from "./spaces";
 import { exponensRouter, exponensTypeRouter } from "./exponens";
+import { permissionRouter } from "./permission";
 
 const serviceRouter: FastifyPluginAsync = async (fastify) => {
   fastify.register(depositeRouter, { prefix: '/deposite' });
@@ -13,6 +14,8 @@ const serviceRouter: FastifyPluginAsync = async (fastify) => {
   fastify.register(spaceRouter, { prefix: '/space' });
   fastify.register(exponensRouter, { prefix: '/exponens' });
   fastify.register(exponensTypeRouter, { prefix: '/exponens/type' });
+  fastify.register(createUniqueKey, { prefix: "/worker" });
+  fastify.register(permissionRouter, { prefix: "/permission" })
 };
 
 export default serviceRouter;

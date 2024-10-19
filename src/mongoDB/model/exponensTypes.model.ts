@@ -1,4 +1,4 @@
-import { model, Schema } from "mongoose";
+import mongoose, { model, Schema } from "mongoose";
 
 const exponensTypes_schema = new Schema({
   keyword: { type: String , required: true , unique: true},
@@ -6,7 +6,7 @@ const exponensTypes_schema = new Schema({
 })
 
 exponensTypes_schema.pre('find', async function (this: any, next: any) {
-  const count = await this.model('exponensTypes').countDocuments();
+  const count = await mongoose.model('exponensTypes').countDocuments();
   if (count === 0) {
     await this.model('exponensTypes').create({ keyword: 'ish xaqi harajatlari', description: 'default description' });
   }

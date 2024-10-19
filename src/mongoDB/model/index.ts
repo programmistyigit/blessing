@@ -8,6 +8,7 @@ export { default as periots } from "./periots.model";
 export { default as permission } from "./permissions.model";
 export { default as worker } from "./workers.model";
 export { default as tokenOfAuthorization } from "./tokenOfAuthorization";
+export { default as task } from "./tasks.model"
 
 export * from "./preiots_including_schemas"
 export * from "./workerTypes"

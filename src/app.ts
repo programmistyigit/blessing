@@ -23,6 +23,10 @@ const app: FastifyPluginAsync<AppOptions> = async (
   // This loads all plugins defined in plugins
   // those should be support plugins that are reused
   // through your application
+  fastify.register(require('@fastify/cors'), {
+    origin: '*' // Allow requests from this origin
+  });
+  
   void fastify.register(AutoLoad, {
     dir: join(__dirname, 'plugins'),
     options: opts
