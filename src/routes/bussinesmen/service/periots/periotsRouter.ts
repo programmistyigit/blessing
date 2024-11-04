@@ -199,6 +199,24 @@ const periotsRouter: FastifyPluginAsync = async (fastify) => {
     }
   });
 
+
+  fastify.get("/start-periot", async (request, reply) => {
+    try {
+      const bussinesmen = await businesmens.findById(request.user)
+      if (bussinesmen?.current_periot) {
+        const periot = await periots.findById(bussinesmen.current_periot._id)
+        if(periot?.status == "is expected"){
+          const updatePeriod = await periots.findByIdAndUpdate(periot._id , { $set: { status: "continues" } } , { new: true})
+          return reply.code(200).send({ status: "success", result: updatePeriod })
+        }
+        return reply.code(400).send({ status: "warn" , message: "Taqiqlangan urunish! Davr allaqachon ishga tushurilgan yoki toxtatilgan!"})
+      }
+      return reply.code(424).send({ status: "error" , message: "Davr hali yaratilmagan avvalgi davr toxtatilgan bolishi mumkun!"})
+    } catch (error:any) {
+      console.error(error)
+      return reply.code(500).send({ status: "error" , message: "Internal Server Error"})
+    }
+  })
 };
 
 export default periotsRouter;

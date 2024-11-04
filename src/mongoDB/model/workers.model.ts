@@ -7,6 +7,7 @@ const workers_schema = new Schema({
     permissions: [{ type: Schema.Types.ObjectId, ref: "permissions" }],
     worker_type: [{ type: Schema.Types.ObjectId, ref: "workerTypes" }],
     phoneNumber: {type: String },
+    tasks: [{ type: Schema.Types.ObjectId , ref: "tasks"}] ,
     avatar: {
         type: String,
         required: false,

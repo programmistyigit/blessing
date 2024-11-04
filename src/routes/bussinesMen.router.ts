@@ -1,5 +1,5 @@
 import { FastifyPluginAsync } from "fastify";
-import { businesmens, business_spaces } from "../mongoDB/model";
+import { businesmens, business_spaces, exponens } from "../mongoDB/model";
 import { bussinesMenSingUpRouter, bussinesMenLogInRouter, serviceRouter, settingsRouter } from "./bussinesmen";
 import workerTypes_model from "../mongoDB/model/workerTypes/workerTypes.model";
 
@@ -14,21 +14,22 @@ const bussinesmenRouter: FastifyPluginAsync = async (fastify, opt) => {
     try {
       const spaceAll = await business_spaces.find()
       console.log(spaceAll);
-      
+
       const { token } = request.query as { token: string }
       if (!token) return reply.badRequest("no token data");
       const cheskToken = fastify.jwt.verify<{ _id: string }>(token)
       const exitingBusinessmen = await businesmens.findById(cheskToken._id).select("-login -password")
       if (!exitingBusinessmen) reply.badRequest("User not found");
       const allWorkerType = await workerTypes_model.find({})
-      await Promise.all(allWorkerType.map(e => e.populate({ path: "members" , strictPopulate: true})))
-      
-      await exitingBusinessmen?.populate({ path: "business_space" , strictPopulate: true })
-      await exitingBusinessmen?.populate({ path: "all_workers" , strictPopulate: true, populate: { path: "worker_type" , strictPopulate: true, select: "-members"} })
-      await exitingBusinessmen?.populate({ path: "periots" , strictPopulate: true , populate: { path: "exponens" , strictPopulate: true}})
-      await exitingBusinessmen?.populate({ path: "current_periot" , strictPopulate: true , populate: { path: "exponens" , strictPopulate: true}})
+      const allExponens = await exponens.find({})
+      await Promise.all(allWorkerType.map(e => e.populate({ path: "members", strictPopulate: true })))
 
-      return { status: "success", ok: true, result: { data: exitingBusinessmen , athersModel: { allWorkerType } } }
+      await exitingBusinessmen?.populate({ path: "business_space", strictPopulate: true })
+      await exitingBusinessmen?.populate({ path: "all_workers", strictPopulate: true, populate: { path: "worker_type", strictPopulate: true, select: "-members" } })
+      await exitingBusinessmen?.populate({ path: "periots", strictPopulate: true, populate: { path: "exponens", strictPopulate: true } })
+      await exitingBusinessmen?.populate({ path: "current_periot", strictPopulate: true, populate: { path: "exponens", strictPopulate: true } })
+      await exitingBusinessmen?.populate({ path: "task", strictPopulate: true, populate: { path: "taskBudjet", strictPopulate: true } })
+      return { status: "success", ok: true, result: { data: exitingBusinessmen, athersModel: { allWorkerType, allExponens } } }
     } catch (error: any) {
       return reply.internalServerError(error + "")
     }
@@ -42,7 +43,7 @@ const bussinesmenRouter: FastifyPluginAsync = async (fastify, opt) => {
     instance.addHook('preHandler', async (request, reply) => {
       const authorizationHeader = request.headers['authorization'];
       if (!authorizationHeader) {
-        return reply.code(401).send({ status: "error" , ok: false , message: "Unauthorized"})
+        return reply.code(401).send({ status: "error", ok: false, message: "Unauthorized" })
       }
 
       const token = authorizationHeader.split(' ')[1];

@@ -14,7 +14,6 @@ const businessmenSchema = new Schema({
   current_periot: { type: Schema.Types.ObjectId , ref: "periots" },
   task: [{ type: Schema.Types.ObjectId, ref: "tasks"}],
   valueOfChichk: { type: Number, default: 0 },
-  
 })
 
 

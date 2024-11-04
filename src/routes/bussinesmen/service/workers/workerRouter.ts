@@ -10,6 +10,7 @@ type CreateWorkerBody = {
   fullname: string;
   worker_type: string[]; // Array of worker type IDs (strings)
   permissions?: string[];  // Optional array of permission IDs (strings)
+  avatar: string
 };
 
 // Fastify plugin for worker management routes
@@ -21,6 +22,7 @@ const workerRouter: FastifyPluginAsync = async (fastify) => {
     body: Type.Object({
       fullName: Type.String({ minLength: 5, maxLength: 30 }),
       worker_type: Type.Array(Type.String()),
+      avatar: Type.String({ default: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Breezeicons-actions-22-im-user.svg/1200px-Breezeicons-actions-22-im-user.svg.png"})
     })
   };
 
