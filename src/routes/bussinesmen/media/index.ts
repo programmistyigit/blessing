@@ -1,0 +1,1 @@
+export {default as imageRouter } from "./image.router"

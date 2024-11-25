@@ -7,7 +7,7 @@ const taskRouter: FastifyPluginAsync = async (fastify) => {
   const schemaCreateTask: FastifySchema = {
     body: Type.Object({
       taskName: Type.String({ minLength: 3, maxLength: 30 }),
-      workerForTask: Type.Array(Type.Required(Type.String({  }))),
+      workerForTask: Type.Array(Type.String({  })),
 
     })
   }

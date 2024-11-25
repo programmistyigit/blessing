@@ -1,0 +1,1 @@
+export { default as drugRouter } from "./drug.router"

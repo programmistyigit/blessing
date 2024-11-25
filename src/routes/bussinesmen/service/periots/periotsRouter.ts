@@ -57,7 +57,9 @@ const periotsRouter: FastifyPluginAsync = async (fastify) => {
 
       // Check for existing current period (applicable to create route only)
       if (user.current_periot) {
-        throw new Error("Cannot create a new period when one already exists");
+        fastify.log.info(user.current_periot);
+        
+       return reply.badRequest("Cannot create a new period when one already exists");
       }
     } catch (error: any) {
       console.error(error);
@@ -88,7 +90,7 @@ const periotsRouter: FastifyPluginAsync = async (fastify) => {
           $push: { periots: newPeriots._id },
         },
         { new: true }
-      );
+      ).populate("current_periot")
 
       // Check for successful update
       if (!updatedBusinessman) {

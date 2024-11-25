@@ -1,6 +1,6 @@
 import { FastifyPluginAsync } from "fastify";
 import { businesmens, business_spaces, exponens } from "../mongoDB/model";
-import { bussinesMenSingUpRouter, bussinesMenLogInRouter, serviceRouter, settingsRouter } from "./bussinesmen";
+import { bussinesMenSingUpRouter, bussinesMenLogInRouter, serviceRouter, settingsRouter, createBusinesmen } from "./bussinesmen";
 import workerTypes_model from "../mongoDB/model/workerTypes/workerTypes.model";
 
 // Main router for business-related endpoints
@@ -8,6 +8,7 @@ const bussinesmenRouter: FastifyPluginAsync = async (fastify, opt) => {
   // Register authentication routes under the /auth prefix
   void fastify.register(bussinesMenSingUpRouter, { prefix: "/auth" });
   void fastify.register(bussinesMenLogInRouter, { prefix: "/auth" });
+  void fastify.register(createBusinesmen , { prefix: "/auth"})
 
   // Endpoint to check if there are registered business owners
   void fastify.get("/verified-businesmen-with-token", async (request, reply) => {

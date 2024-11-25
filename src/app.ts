@@ -2,7 +2,9 @@ import { join } from 'path';
 import AutoLoad, { AutoloadPluginOptions } from '@fastify/autoload';
 import { FastifyPluginAsync, FastifyServerOptions } from 'fastify';
 import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
+import multipart from "@fastify/multipart"
 import { router } from "./routes"
+
 export interface AppOptions extends FastifyServerOptions, Partial<AutoloadPluginOptions> {
 
 }
@@ -23,6 +25,8 @@ const app: FastifyPluginAsync<AppOptions> = async (
   // This loads all plugins defined in plugins
   // those should be support plugins that are reused
   // through your application
+  fastify.register(multipart)
+
   fastify.register(require('@fastify/cors'), {
     origin: '*' // Allow requests from this origin
   });
