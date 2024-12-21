@@ -12,7 +12,7 @@ export default async function imageRouter(fastify: FastifyInstance) {
         data.filename="./upload/image/" + v4() + ".jpg"
         try {
             await pipeline(data.file, fs.createWriteStream(data.filename))
-            const newImage = await media.create({ url: "/"+data.filename.split("./")[1] })
+            const newImage = await media.create({ url: "/"+data.filename.split("./upload/")[1] })
             reply.send({ status: "success" , result: newImage})
         } catch (error) {
             console.error(error)

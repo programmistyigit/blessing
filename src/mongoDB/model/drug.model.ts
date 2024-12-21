@@ -5,7 +5,7 @@ const drug_schema = new Schema({
   amount: { type: Number , default: 0 },
   amount_type: {type: String },
   documentation: { type: String , default: undefined },
-  images: [{ type: Schema.Types.ObjectId , ref: "images"}],
+  image: { type: Schema.Types.ObjectId , ref: "images"},
   key: String,
   warningValue: { type: Number, required: true }
 })

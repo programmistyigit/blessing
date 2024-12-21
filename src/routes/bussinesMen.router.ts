@@ -1,5 +1,5 @@
 import { FastifyPluginAsync } from "fastify";
-import { businesmens, business_spaces, exponens } from "../mongoDB/model";
+import { businesmens, business_spaces, drug, exponens } from "../mongoDB/model";
 import { bussinesMenSingUpRouter, bussinesMenLogInRouter, serviceRouter, settingsRouter, createBusinesmen } from "./bussinesmen";
 import workerTypes_model from "../mongoDB/model/workerTypes/workerTypes.model";
 
@@ -25,12 +25,16 @@ const bussinesmenRouter: FastifyPluginAsync = async (fastify, opt) => {
       const allExponens = await exponens.find({})
       await Promise.all(allWorkerType.map(e => e.populate({ path: "members", strictPopulate: true })))
 
-      await exitingBusinessmen?.populate({ path: "business_space", strictPopulate: true })
-      await exitingBusinessmen?.populate({ path: "all_workers", strictPopulate: true, populate: { path: "worker_type", strictPopulate: true, select: "-members" } })
-      await exitingBusinessmen?.populate({ path: "periots", strictPopulate: true, populate: { path: "exponens", strictPopulate: true } })
-      await exitingBusinessmen?.populate({ path: "current_periot", strictPopulate: true, populate: { path: "exponens", strictPopulate: true } })
-      await exitingBusinessmen?.populate({ path: "task", strictPopulate: true, populate: { path: "taskBudjet", strictPopulate: true } })
-      return { status: "success", ok: true, result: { data: exitingBusinessmen, athersModel: { allWorkerType, allExponens } } }
+      const a = exitingBusinessmen?.populate({ path: "business_space", strictPopulate: true })
+      const b = exitingBusinessmen?.populate({ path: "all_workers", strictPopulate: true, populate: { path: "worker_type", strictPopulate: true, select: "-members" } })
+      const d = exitingBusinessmen?.populate({ path: "periots", strictPopulate: true, populate: { path: "exponens", strictPopulate: true } })
+      const e = exitingBusinessmen?.populate({ path: "current_periot", strictPopulate: true, populate: { path: "exponens", strictPopulate: true } })
+      const f = exitingBusinessmen?.populate({ path: "task", strictPopulate: true, populate: { path: "taskBudjet", strictPopulate: true } });
+      await Promise.all([a,b,d,e,f])
+
+      const drug1 = await drug.find({}).populate("image")
+
+      return { status: "success", ok: true, result: { data: exitingBusinessmen, athersModel: { allWorkerType, allExponens , drug: drug1 } } }
     } catch (error: any) {
       return reply.internalServerError(error + "")
     }

@@ -39,8 +39,9 @@ const drugRouter: FastifyPluginAsync = async (fastify) => {
             return reply.send({ status: "success", result: newDrug })
         } catch (error) {
             console.error(error)
-            return reply.internalServerError("Serverda kutilmagan xatolik yuz berdi")
+            return reply.internalServerError("Serverda kutilmagan xatolik yuz berdi"+error)
         }
+
     })
 
     void fastify.put("/drug" , {schema: schemaEdit} , async (request, reply) => {
