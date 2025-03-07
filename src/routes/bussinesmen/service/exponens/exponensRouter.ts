@@ -61,7 +61,7 @@ const exponensRouter: FastifyPluginAsync = async (fastify) => {
       if(!currentPeriots) throw new Error("Davr boshlanmaguncha harajat qoshilmaydi");
       // **2. Create new exponens document**
       const newExponens = await exponens.create(request.body);
-    const periot = await periots.findByIdAndUpdate(currentPeriots , { $push: { exponens: newExponens._id}})
+    const periot = await periots.findByIdAndUpdate(currentPeriots , { $push: { exponens: newExponens._id}}, { new: true })
     if(!periot) throw new Error("Davr topilmadi nimadur hato")
 
       return reply

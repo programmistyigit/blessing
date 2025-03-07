@@ -4,6 +4,7 @@ import { FastifyPluginAsync, FastifyServerOptions } from 'fastify';
 import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
 import multipart from "@fastify/multipart"
 import { router } from "./routes"
+import startBlessingBugalter from './bot/telegram/blessingBugalter_bot';
 
 export interface AppOptions extends FastifyServerOptions, Partial<AutoloadPluginOptions> {
 
@@ -39,8 +40,9 @@ const app: FastifyPluginAsync<AppOptions> = async (
   fastify.register(router, { prefix: "/api" })
   // This loads all plugins defined in routes
   // define your routes in one of these
-  fastify.ready().then(() => {
-    fastify.mongoDBconnect(process.env.MONGODB_URL as string)
+  fastify.ready().then( async () => {
+    await fastify.mongoDBconnect(process.env.MONGODB_URL as string)
+    startBlessingBugalter(fastify.jwt.verify)
     const routers = fastify.printRoutes()
     fastify.log.info(routers)
   })
